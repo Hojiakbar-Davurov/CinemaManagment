@@ -18,7 +18,7 @@ public class Film extends AbstractEntity {
     /**
      * film name
      */
-    @Column(name = "name", unique = true, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     public FilmDTO map2DTO() {
