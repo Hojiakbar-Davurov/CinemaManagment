@@ -2,11 +2,14 @@ package com.example.cinemamanagment.service.impl;
 
 import com.example.cinemamanagment.exeptions.ResourceAlreadyExistsException;
 import com.example.cinemamanagment.exeptions.ResourceNotFoundException;
-import com.example.cinemamanagment.model.domain.Film;
-import com.example.cinemamanagment.model.dto.FilmDTO;
+import com.example.cinemamanagment.model.domain.Cinema;
+import com.example.cinemamanagment.model.domain.Hall;
 import com.example.cinemamanagment.model.dto.HallDTO;
+import com.example.cinemamanagment.model.dto.RowDTO;
+import com.example.cinemamanagment.repository.CinemaRepository;
 import com.example.cinemamanagment.repository.HallRepository;
-import com.example.cinemamanagment.service.FilmService;
+import com.example.cinemamanagment.service.HallService;
+import com.example.cinemamanagment.service.RowService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +19,13 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Service
-public class HallServiceImp implements FilmService {
+public class HallServiceImp implements HallService {
+    @Autowired
+    private RowService rowService;
     @Autowired
     private HallRepository hallRepository;
+    @Autowired
+    private CinemaRepository cinemaRepository;
 
     @Override
     public HallDTO save(HallDTO hallDTO) {
@@ -29,61 +36,65 @@ public class HallServiceImp implements FilmService {
             throw new ResourceAlreadyExistsException(SERVICE_NAME + " already exists by name: " + hallDTO.getName() + "  and cinema id: " + hallDTO.getCinemaId());
         }
 
-        // save hall
-        FilmDTO savedFilmDTO = filmRepository.save(filmDTO.map2Entity()).map2DTO();
-        log.debug(SERVICE_NAME + " saved, DTO:{}", savedFilmDTO);
+        //find cinema by id
+        Cinema cinema = cinemaRepository.findById(hallDTO.getCinemaId()).orElseThrow(() -> new ResourceNotFoundException("Cinema not found by id: " + hallDTO.getCinemaId()));
 
-        return savedFilmDTO;
+        // save hall
+        HallDTO savedHallDTO = hallRepository.save(hallDTO.map2Entity(cinema)).map2DTO();
+        log.debug(SERVICE_NAME + " saved, DTO:{}", savedHallDTO);
+
+        rowService.save(new RowDTO())
+
+        return savedHallDTO;
     }
 
     @Override
-    public List<FilmDTO> findAll() {
+    public List<HallDTO> findAll() {
         log.debug("Request come to " + SERVICE_NAME + " service to get all");
 
-        return filmRepository.findAll()
-                .stream()
-                .map(Film::map2DTO)
-                .collect(Collectors.toList());
+        return hallRepository.findAll().stream().map(Hall::map2DTO).collect(Collectors.toList());
     }
 
     @Override
-    public FilmDTO findById(Long id) {
+    public HallDTO findById(Long id) {
         log.debug("Request come to " + SERVICE_NAME + " service to find by id:{}", id);
 
-        Film film = filmRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
+        Hall hall = hallRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
 
-        FilmDTO filmDTO = film.map2DTO();
-        log.debug(SERVICE_NAME + " found, DTO:{}", filmDTO);
+        HallDTO hallDTO = hall.map2DTO();
+        log.debug(SERVICE_NAME + " found, DTO:{}", hallDTO);
 
-        return filmDTO;
+        return hallDTO;
     }
 
     @Override
-    public FilmDTO update(Long id, FilmDTO filmDTO) {
-        log.debug("Request come to " + SERVICE_NAME + " service to update by id:{},  DTO:{}", id, filmDTO);
+    public HallDTO update(Long id, HallDTO hallDTO) {
+        log.debug("Request come to " + SERVICE_NAME + " service to update by id:{},  DTO:{}", id, hallDTO);
 
-        // find film by id
-        Film optionalFilm = filmRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
-        // update film
-        Film film = filmDTO.map2Entity();
-        film.setId(optionalFilm.getId());
+        // find hall by id
+        Hall optionalHall = hallRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
 
-        FilmDTO saveFilmDTO = filmRepository.save(film).map2DTO();
-        log.debug(SERVICE_NAME + " updated, DTO:{}", saveFilmDTO);
+        // find cinema by id
+        Cinema cinema = cinemaRepository.findById(hallDTO.getCinemaId()).orElseThrow(() -> new ResourceNotFoundException("Cinema not found by id: " + hallDTO.getCinemaId()));
 
-        return saveFilmDTO;
+        // update hall
+        Hall hall = hallDTO.map2Entity(cinema);
+        hall.setId(optionalHall.getId());
+
+        HallDTO saveHallDTO = hallRepository.save(hall).map2DTO();
+        log.debug(SERVICE_NAME + " updated, DTO:{}", saveHallDTO);
+
+        return saveHallDTO;
     }
 
     @Override
     public void deleteById(Long id) {
         log.debug("Request come to " + SERVICE_NAME + " service to delete by id:{}", id);
 
-        if (!filmRepository.existsById(id))
+        if (!hallRepository.existsById(id))
             throw new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id);
 
-        filmRepository.deleteById(id);
+        hallRepository.deleteById(id);
         log.debug(SERVICE_NAME + " deleted by id:{}", id);
     }
 }

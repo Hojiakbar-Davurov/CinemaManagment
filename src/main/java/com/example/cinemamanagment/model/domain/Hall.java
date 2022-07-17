@@ -1,10 +1,7 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.HallDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -31,7 +28,7 @@ public class Hall extends AbstractEntity {
     /**
      * related cinema id
      */
-    @Column(name = "cinema_id", nullable = false)
+    @JoinColumn(name = "cinema_id", nullable = false)
     @ManyToOne
     private Cinema cinema;
 
@@ -41,6 +38,7 @@ public class Hall extends AbstractEntity {
         hallDTO.setName(this.name);
         hallDTO.setNumberOfRows(this.numberOfRows);
         hallDTO.setCinemaId(this.cinema.getId());
+        hallDTO.setCinema(this.cinema.getName());
         hallDTO.setCreatedAt(this.getCreateAt());
         hallDTO.setUpdatedAt(this.getUpdateAt());
         return hallDTO;

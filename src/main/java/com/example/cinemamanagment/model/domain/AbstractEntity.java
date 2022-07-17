@@ -21,11 +21,10 @@ public abstract class AbstractEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, updatable = false)
+    @Column(updatable = false)
     @CreationTimestamp()
     private Timestamp createAt;
 
-    @Column(unique = true)
     @UpdateTimestamp
     private Timestamp updateAt;
 

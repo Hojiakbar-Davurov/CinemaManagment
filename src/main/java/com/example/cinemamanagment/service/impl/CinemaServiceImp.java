@@ -65,6 +65,7 @@ public class CinemaServiceImp implements CinemaService {
         // find cinema by id
         Cinema optionalCinema = cinemaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
+
         // update cinema
         Cinema cinema = cinemaDTO.map2Entity();
         cinema.setId(optionalCinema.getId());

@@ -65,6 +65,7 @@ public class FilmServiceImp implements FilmService {
         // find film by id
         Film optionalFilm = filmRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
+
         // update film
         Film film = filmDTO.map2Entity();
         film.setId(optionalFilm.getId());

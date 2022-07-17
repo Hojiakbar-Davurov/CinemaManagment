@@ -20,8 +20,11 @@ public class HallDTO {
     private String name;
     @NotNull(message = "Number of rows in hall not be empty")
     private Integer numberOfRows;
+
     @NotNull(message = "Cinema id not be empty")
     private Long cinemaId;
+
+    private String cinema;
 
     private Timestamp createdAt;
 

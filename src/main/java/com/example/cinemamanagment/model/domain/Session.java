@@ -1,10 +1,12 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.SessionDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
-import java.sql.Time;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -18,14 +20,13 @@ public class Session extends AbstractEntity {
     /**
      * session time
      */
-    @Temporal(TemporalType.TIME)
-    @Column(name = "session_time", nullable = false)
-    private Time sessionTime;
+    @Column(name = "time", unique = true, nullable = false)
+    private LocalTime time;
 
     public SessionDTO map2DTO() {
         SessionDTO sessionDTO = new SessionDTO();
         sessionDTO.setId(this.getId());
-        sessionDTO.setSessionTime(this.sessionTime);
+        sessionDTO.setTime(this.time);
         sessionDTO.setCreatedAt(this.getCreateAt());
         sessionDTO.setUpdatedAt(this.getUpdateAt());
         return sessionDTO;

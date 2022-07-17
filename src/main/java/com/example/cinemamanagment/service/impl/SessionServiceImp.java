@@ -24,8 +24,8 @@ public class SessionServiceImp implements SessionService {
         log.debug("Request come to " + SERVICE_NAME + " service to save, DTO:{}", sessionDTO);
 
         // check session exists by name
-        if (sessionRepository.existsBySessionTime(sessionDTO.getSessionTime())) {
-            throw new ResourceAlreadyExistsException(SERVICE_NAME + " already exists by name: " + sessionDTO.getSessionTime());
+        if (sessionRepository.existsByTime(sessionDTO.getTime())) {
+            throw new ResourceAlreadyExistsException(SERVICE_NAME + " already exists by name: " + sessionDTO.getTime());
         }
 
         // save session

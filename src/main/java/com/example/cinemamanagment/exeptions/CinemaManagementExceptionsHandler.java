@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
-public class MyExceptionsHandler extends ResponseEntityExceptionHandler {
+public class CinemaManagementExceptionsHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
     public HttpEntity<?> resourceNotFoundExceptionHandler(ResourceNotFoundException e) {

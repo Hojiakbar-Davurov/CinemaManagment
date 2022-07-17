@@ -2,11 +2,12 @@ package com.example.cinemamanagment.model.dto;
 
 
 import com.example.cinemamanagment.model.domain.Session;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalTime;
 
 @Setter
 @Getter
@@ -16,14 +17,15 @@ import java.sql.Timestamp;
 public class SessionDTO {
 
     private Long id;
-    @NotNull(message = "Session name not be empty")
-    private Time sessionTime;
+    @NotNull(message = "Session time not be empty")
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime time;
 
     private Timestamp createdAt;
 
     private Timestamp updatedAt;
 
     public Session map2Entity() {
-        return new Session(this.sessionTime);
+        return new Session(this.time);
     }
 }
