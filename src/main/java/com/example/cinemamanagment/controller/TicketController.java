@@ -1,8 +1,6 @@
 package com.example.cinemamanagment.controller;
 
-import com.example.cinemamanagment.model.domain.Ticket;
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
-import com.example.cinemamanagment.model.dto.CinemaDTO;
 import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import com.example.cinemamanagment.model.dto.TicketDTO;
 import com.example.cinemamanagment.service.TicketService;

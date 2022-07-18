@@ -29,7 +29,7 @@ public class Ticket extends AbstractEntity {
      * isCancelled. This is automatically cancel if not pay until start
      */
     @Column(name = "is_cancelled", nullable = false)
-    private Boolean isCancelled = Boolean.FALSE;
+    private Boolean isCancelled;
 
     /**
      * row id which seat related to

@@ -17,7 +17,6 @@ public class TicketDTO {
     private Long id;
     @NotNull(message = "client name not be empty")
     private String clientName;
-
     @NotNull(message = "payment status not be empty")
     private Boolean isPay;
 
@@ -44,7 +43,7 @@ public class TicketDTO {
     private String session;
 
     private String row;
-    private Boolean isCancelled;
+    private Boolean isCancelled=Boolean.FALSE;
 
     private Timestamp createdAt;
 

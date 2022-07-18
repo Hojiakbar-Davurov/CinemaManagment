@@ -36,16 +36,15 @@ public class TicketServiceImp implements TicketService {
     private OrderTypeRepository orderTypeRepository;
 
     @Override
-    @Scheduled(fixedRate = 1000 * 60 * 1)
+    @Scheduled(fixedRate = 1000 * 60 * 10)
     public void cancelNotPayment() {
         LocalTime now = LocalTime.now();
         List<Long> notPaymentTicketId = ticketRepository.findNotPaymentByTime(now);
 
-        for (Long ticketId : notPaymentTicketId) {
-            ticketRepository.cancelNotPayment(ticketId);
-            log.debug(SERVICE_NAME + " is cancelled because of not payment, ticket id: {}", ticketId);
+        for (Long i : notPaymentTicketId) {
+            ticketRepository.cancelNotPayment(i);
+            log.debug(SERVICE_NAME + " is cancelled because of not payment, ticket id: {}", i);
         }
-        System.out.println(now);
     }
 
     @Override

@@ -6,9 +6,11 @@ import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -36,13 +38,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
                     "where t.executionFilm.id = :executionFilmId and t.isCancelled= false and ss.name  <> com.example.cinemamanagment.model.enums.SeatStatusEnum.OZOD ")
     Page<FreeSeatInExecutionFilmDTO> findFreeSeatByExecutionFilm(@Param("executionFilmId") Long executionFilmId, Pageable pageable);
 
-    @Query(value = "update Ticket " +
-            "set isCancelled = true " +
-            "where id = :id ")
+    @Transactional
+    @Modifying
+    @Query("update Ticket t set t.isCancelled = true where t.id = :id")
     void cancelNotPayment(@Param("id") Long id);
 
     @Query(value = "select t.id \n" +
             "from Ticket t\n" +
-            "where t.isPay = false and t.isCancelled = false and t.executionFilm.session.time <= :time")
+            "join Session s on s.id = t.sessionId  \n" +
+            "where t.isPay = false and t.isCancelled = false and s.time  <= :time")
     List<Long> findNotPaymentByTime(LocalTime time);
 }
