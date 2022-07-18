@@ -1,7 +1,7 @@
 package com.example.cinemamanagment.service;
 
-import com.example.cinemamanagment.model.dto.FilmDTO;
 import com.example.cinemamanagment.model.dto.HallDTO;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public interface HallService {
 
     HallDTO save(HallDTO dto);
 
-    List<HallDTO> findAll();
+    List<HallDTO> findAll(Pageable pageable);
 
     HallDTO findById(Long id);
 

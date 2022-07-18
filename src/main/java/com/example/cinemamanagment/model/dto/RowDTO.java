@@ -20,7 +20,6 @@ public class RowDTO {
     private String name;
     @NotNull(message = "Number of seats in row not be empty")
     private Integer numberOfSeats;
-
     @NotNull(message = "Hall id not be empty")
     private Long hallId;
 
@@ -30,6 +29,11 @@ public class RowDTO {
 
     private Timestamp updatedAt;
 
+    public RowDTO(Integer numberOfSeats, Long hallId) {
+        this.numberOfSeats = numberOfSeats;
+        this.hallId = hallId;
+    }
+
     public Row map2Entity(Hall hall) {
         return new Row(
                 this.name,
@@ -37,7 +41,4 @@ public class RowDTO {
                 hall
         );
     }
-
-
-
 }

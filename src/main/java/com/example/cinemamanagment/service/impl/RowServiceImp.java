@@ -4,12 +4,15 @@ import com.example.cinemamanagment.exeptions.ResourceAlreadyExistsException;
 import com.example.cinemamanagment.exeptions.ResourceNotFoundException;
 import com.example.cinemamanagment.model.domain.Hall;
 import com.example.cinemamanagment.model.domain.Row;
+import com.example.cinemamanagment.model.domain.Seat;
 import com.example.cinemamanagment.model.dto.RowDTO;
 import com.example.cinemamanagment.repository.HallRepository;
 import com.example.cinemamanagment.repository.RowRepository;
+import com.example.cinemamanagment.repository.SeatRepository;
 import com.example.cinemamanagment.service.RowService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +25,18 @@ public class RowServiceImp implements RowService {
     private HallRepository hallRepository;
     @Autowired
     private RowRepository rowRepository;
+    @Autowired
+    private SeatRepository seatRepository;
+
+    @Override
+    public List<RowDTO> findAllRowsInHall(Long hallId, Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all rows by hall id: {}, page{}", hallId, pageable);
+
+        return rowRepository.findAllByHallId(hallId, pageable)
+                .stream()
+                .map(Row::map2DTO)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public RowDTO save(RowDTO rowDTO) {
@@ -37,17 +52,22 @@ public class RowServiceImp implements RowService {
                 orElseThrow(() -> new ResourceNotFoundException("Hall not found by id: " + rowDTO.getHallId()));
 
         // save row
-        RowDTO savedRowDTO = rowRepository.save(rowDTO.map2Entity(hall)).map2DTO();
-        log.debug(SERVICE_NAME + " saved, DTO:{}", savedRowDTO);
+        Row savedRow = rowRepository.save(rowDTO.map2Entity(hall));
 
-        return savedRowDTO;
+        //save seats by row id
+        for (int i = 0; i < savedRow.getNumberOfSeats(); i++) {
+            seatRepository.save(new Seat(String.valueOf(i + 1), savedRow));
+        }
+
+        log.debug(SERVICE_NAME + " saved, DTO:{}", savedRow.map2DTO());
+        return savedRow.map2DTO();
     }
 
     @Override
-    public List<RowDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<RowDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return rowRepository.findAll()
+        return rowRepository.findAll(pageable)
                 .stream()
                 .map(Row::map2DTO)
                 .collect(Collectors.toList());

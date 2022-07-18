@@ -1,6 +1,7 @@
 package com.example.cinemamanagment.service;
 
 import com.example.cinemamanagment.model.dto.OrderTypeDTO;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface OrderTypeService {
 
     OrderTypeDTO save(OrderTypeDTO dto);
 
-    List<OrderTypeDTO> findAll();
+    List<OrderTypeDTO> findAll(Pageable pageable);
 
     OrderTypeDTO findById(Long id);
 

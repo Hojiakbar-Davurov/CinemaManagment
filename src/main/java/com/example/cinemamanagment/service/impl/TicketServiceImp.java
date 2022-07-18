@@ -3,19 +3,26 @@ package com.example.cinemamanagment.service.impl;
 import com.example.cinemamanagment.exeptions.ResourceAlreadyExistsException;
 import com.example.cinemamanagment.exeptions.ResourceNotFoundException;
 import com.example.cinemamanagment.model.domain.*;
+import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import com.example.cinemamanagment.model.dto.TicketDTO;
 import com.example.cinemamanagment.repository.*;
 import com.example.cinemamanagment.service.TicketService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Log4j2
 @Service
+@EnableAsync
 public class TicketServiceImp implements TicketService {
     @Autowired
     private TicketRepository ticketRepository;
@@ -27,6 +34,26 @@ public class TicketServiceImp implements TicketService {
     private SeatRepository seatRepository;
     @Autowired
     private OrderTypeRepository orderTypeRepository;
+
+    @Override
+    @Scheduled(fixedRate = 1000 * 60 * 1)
+    public void cancelNotPayment() {
+        LocalTime now = LocalTime.now();
+        List<Long> notPaymentTicketId = ticketRepository.findNotPaymentByTime(now);
+
+        for (Long ticketId : notPaymentTicketId) {
+            ticketRepository.cancelNotPayment(ticketId);
+            log.debug(SERVICE_NAME + " is cancelled because of not payment, ticket id: {}", ticketId);
+        }
+        System.out.println(now);
+    }
+
+    @Override
+    public Page<FreeSeatInExecutionFilmDTO> findFreeSeatByExecutionFilm(Long executionFilmId, Pageable pageable) {
+        log.debug("Request to get all free seats by execution film id: {}, page{}: ", executionFilmId, pageable);
+
+        return ticketRepository.findFreeSeatByExecutionFilm(executionFilmId, pageable);
+    }
 
     @Override
     public TicketDTO save(TicketDTO dto) {
@@ -72,10 +99,10 @@ public class TicketServiceImp implements TicketService {
     }
 
     @Override
-    public List<TicketDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<TicketDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return ticketRepository.findAll()
+        return ticketRepository.findAll(pageable)
                 .stream()
                 .map(Ticket::map2DTO)
                 .collect(Collectors.toList());

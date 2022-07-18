@@ -1,15 +1,25 @@
 package com.example.cinemamanagment.controller;
 
+import com.example.cinemamanagment.model.domain.Ticket;
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
+import com.example.cinemamanagment.model.dto.CinemaDTO;
+import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import com.example.cinemamanagment.model.dto.TicketDTO;
 import com.example.cinemamanagment.service.TicketService;
+import io.github.jhipster.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
 
 @Log4j2
 @RestController
@@ -18,6 +28,17 @@ public class TicketController {
     private static final String SERVICE_NAME = "ticket";
     @Autowired
     private TicketService ticketService;
+
+    @GetMapping("/free-seats/{executionFilmId}")
+    public HttpEntity<List<FreeSeatInExecutionFilmDTO>> findFreeSeatByExecutionFilm(@PathVariable Long executionFilmId, Pageable pageable) {
+        log.debug("REST request to get free seat  by execution film id: {}, page: {}", executionFilmId, pageable);
+
+        var page = ticketService.findFreeSeatByExecutionFilm(executionFilmId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
+    }
 
     @PostMapping
     public HttpEntity<ApiResponseWrapperDTO> save(@Valid @RequestBody TicketDTO dto) {
@@ -35,12 +56,16 @@ public class TicketController {
     }
 
     @GetMapping
-    public HttpEntity<?> findAll() {
-        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME);
+    public HttpEntity<List<TicketDTO>> findAll(Pageable pageable) {
+        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME + ", page{}", pageable);
 
-        return ResponseEntity
-                .ok()
-                .body(ticketService.findAll());
+        List<TicketDTO> dtoList = ticketService.findAll(pageable);
+        PageImpl<TicketDTO> page = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
     }
 
     @GetMapping("/{id}")

@@ -14,6 +14,7 @@ import com.example.cinemamanagment.repository.SessionRepository;
 import com.example.cinemamanagment.service.ExecutionFilmService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,10 +65,10 @@ public class ExecutionFilmServiceImp implements ExecutionFilmService {
     }
 
     @Override
-    public List<ExecutionFilmDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<ExecutionFilmDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return executionFilmRepository.findAll()
+        return executionFilmRepository.findAll(pageable)
                 .stream()
                 .map(ExecutionFilm::map2DTO)
                 .collect(Collectors.toList());

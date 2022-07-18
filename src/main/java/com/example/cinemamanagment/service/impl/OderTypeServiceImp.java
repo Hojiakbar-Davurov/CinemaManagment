@@ -9,6 +9,7 @@ import com.example.cinemamanagment.repository.OrderTypeRepository;
 import com.example.cinemamanagment.service.OrderTypeService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -48,10 +49,10 @@ public class OderTypeServiceImp implements OrderTypeService {
     }
 
     @Override
-    public List<OrderTypeDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<OrderTypeDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return orderTypeRepository.findAll()
+        return orderTypeRepository.findAll(pageable)
                 .stream()
                 .map(OrderType::map2DTO)
                 .collect(Collectors.toList());

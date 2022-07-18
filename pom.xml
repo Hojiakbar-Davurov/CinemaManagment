@@ -54,6 +54,7 @@
             <scope>compile</scope>
         </dependency>
 
+<!--        mine-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -64,6 +65,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.github.jhipster/jhipster-dependencies &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.github.jhipster</groupId>-->
+<!--            <artifactId>jhipster-dependencies</artifactId>-->
+<!--            <version>3.9.1</version>-->
+<!--            <type>pom</type>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>io.github.jhipster</groupId>
+            <artifactId>jhipster-framework</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

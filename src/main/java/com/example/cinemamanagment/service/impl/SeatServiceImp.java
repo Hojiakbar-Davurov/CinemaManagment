@@ -10,6 +10,7 @@ import com.example.cinemamanagment.repository.SeatRepository;
 import com.example.cinemamanagment.service.SeatService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,16 @@ public class SeatServiceImp implements SeatService {
     private SeatRepository seatRepository;
     @Autowired
     private RowRepository rowRepository;
+
+    @Override
+    public List<SeatDTO> findAllSeatInRow(Long rowId, Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all seats by row id: {}, page{}", rowId, pageable);
+
+        return seatRepository.findAllByRowId(rowId, pageable)
+                .stream()
+                .map(Seat::map2DTO)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public SeatDTO save(SeatDTO seatDTO) {
@@ -44,10 +55,10 @@ public class SeatServiceImp implements SeatService {
     }
 
     @Override
-    public List<SeatDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<SeatDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return seatRepository.findAll()
+        return seatRepository.findAll(pageable)
                 .stream()
                 .map(Seat::map2DTO)
                 .collect(Collectors.toList());

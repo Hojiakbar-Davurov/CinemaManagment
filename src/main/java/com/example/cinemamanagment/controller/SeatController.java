@@ -1,15 +1,23 @@
 package com.example.cinemamanagment.controller;
 
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
+import com.example.cinemamanagment.model.dto.CinemaDTO;
 import com.example.cinemamanagment.model.dto.SeatDTO;
 import com.example.cinemamanagment.service.SeatService;
+import io.github.jhipster.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
 
 @Log4j2
 @RestController
@@ -19,6 +27,19 @@ public class SeatController {
 
     @Autowired
     private SeatService seatService;
+
+    @GetMapping("/seats-in-row/{rowId}")
+    public HttpEntity<List<SeatDTO>> findSeatsInRow(@PathVariable Long rowId, Pageable pageable) {
+        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + "/seats-in-row/{id} to get all seats by row id: {}, page{}", rowId, pageable);
+
+        List<SeatDTO> dtoList = seatService.findAllSeatInRow(rowId, pageable);
+        PageImpl<SeatDTO> page = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
+    }
 
     @PostMapping
     public HttpEntity<ApiResponseWrapperDTO> save(@Valid @RequestBody SeatDTO dto) {
@@ -36,12 +57,16 @@ public class SeatController {
     }
 
     @GetMapping
-    public HttpEntity<?> findAll() {
-        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME);
+    public HttpEntity<List<SeatDTO>> findAll(Pageable pageable) {
+        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME + ", page{}", pageable);
 
-        return ResponseEntity
-                .ok()
-                .body(seatService.findAll());
+        List<SeatDTO> dtoList = seatService.findAll(pageable);
+        PageImpl<SeatDTO> page = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
     }
 
     @GetMapping("/{id}")

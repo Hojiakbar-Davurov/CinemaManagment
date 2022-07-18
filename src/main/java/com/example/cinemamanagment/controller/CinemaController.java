@@ -3,13 +3,20 @@ package com.example.cinemamanagment.controller;
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
 import com.example.cinemamanagment.model.dto.CinemaDTO;
 import com.example.cinemamanagment.service.CinemaService;
+import io.github.jhipster.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
 
 @Log4j2
 @RestController
@@ -35,12 +42,16 @@ public class CinemaController {
     }
 
     @GetMapping
-    public HttpEntity<?> findAll() {
-        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME);
+    public HttpEntity<List<CinemaDTO>> findAll(Pageable pageable) {
+        log.debug("GET request come to controller from url=.../api/" + SERVICE_NAME + " to get all " + SERVICE_NAME + ", page{}", pageable);
 
-        return ResponseEntity
-                .ok()
-                .body(cinemaService.findAll());
+        List<CinemaDTO> dtoList = cinemaService.findAll(pageable);
+        PageImpl<CinemaDTO> page = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
     }
 
     @GetMapping("/{id}")

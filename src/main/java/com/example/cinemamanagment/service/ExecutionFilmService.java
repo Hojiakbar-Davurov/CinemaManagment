@@ -1,6 +1,7 @@
 package com.example.cinemamanagment.service;
 
 import com.example.cinemamanagment.model.dto.ExecutionFilmDTO;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface ExecutionFilmService {
 
     ExecutionFilmDTO save(ExecutionFilmDTO dto);
 
-    List<ExecutionFilmDTO> findAll();
+    List<ExecutionFilmDTO> findAll(Pageable pageable);
 
     ExecutionFilmDTO findById(Long id);
 

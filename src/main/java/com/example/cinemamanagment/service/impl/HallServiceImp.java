@@ -5,13 +5,13 @@ import com.example.cinemamanagment.exeptions.ResourceNotFoundException;
 import com.example.cinemamanagment.model.domain.Cinema;
 import com.example.cinemamanagment.model.domain.Hall;
 import com.example.cinemamanagment.model.dto.HallDTO;
-import com.example.cinemamanagment.model.dto.RowDTO;
 import com.example.cinemamanagment.repository.CinemaRepository;
 import com.example.cinemamanagment.repository.HallRepository;
 import com.example.cinemamanagment.service.HallService;
 import com.example.cinemamanagment.service.RowService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,16 +43,17 @@ public class HallServiceImp implements HallService {
         HallDTO savedHallDTO = hallRepository.save(hallDTO.map2Entity(cinema)).map2DTO();
         log.debug(SERVICE_NAME + " saved, DTO:{}", savedHallDTO);
 
-        rowService.save(new RowDTO())
-
         return savedHallDTO;
     }
 
     @Override
-    public List<HallDTO> findAll() {
-        log.debug("Request come to " + SERVICE_NAME + " service to get all");
+    public List<HallDTO> findAll(Pageable pageable) {
+        log.debug("Request come to " + SERVICE_NAME + " service to get all, page: {}", pageable);
 
-        return hallRepository.findAll().stream().map(Hall::map2DTO).collect(Collectors.toList());
+        return hallRepository.findAll(pageable)
+                .stream()
+                .map(Hall::map2DTO)
+                .collect(Collectors.toList());
     }
 
     @Override

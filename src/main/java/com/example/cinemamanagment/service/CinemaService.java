@@ -1,6 +1,7 @@
 package com.example.cinemamanagment.service;
 
 import com.example.cinemamanagment.model.dto.CinemaDTO;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface CinemaService {
 
     CinemaDTO save(CinemaDTO cinemaDTO);
 
-    List<CinemaDTO> findAll();
+    List<CinemaDTO> findAll(Pageable pageable);
 
     CinemaDTO findById(Long id);
 
