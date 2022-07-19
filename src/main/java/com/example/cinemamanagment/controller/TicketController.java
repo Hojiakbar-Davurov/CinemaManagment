@@ -8,15 +8,15 @@ import io.github.jhipster.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 @Log4j2
@@ -26,6 +26,15 @@ public class TicketController {
     private static final String SERVICE_NAME = "ticket";
     @Autowired
     private TicketService ticketService;
+
+    @GetMapping("/download-ticket/{ticketId}")
+    public HttpEntity<Resource> downloadTicketById(@PathVariable Long ticketId){
+        ByteArrayInputStream stream=ticketService.downloadTicket(ticketId);
+        InputStreamResource file=new InputStreamResource(stream);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket.pdf")
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(file);
+    }
 
     @GetMapping("/free-seats/{executionFilmId}")
     public HttpEntity<List<FreeSeatInExecutionFilmDTO>> findFreeSeatByExecutionFilm(@PathVariable Long executionFilmId, Pageable pageable) {

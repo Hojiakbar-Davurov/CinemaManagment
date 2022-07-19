@@ -66,18 +66,17 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/io.github.jhipster/jhipster-dependencies &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>io.github.jhipster</groupId>-->
-<!--            <artifactId>jhipster-dependencies</artifactId>-->
-<!--            <version>3.9.1</version>-->
-<!--            <type>pom</type>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>io.github.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
             <version>3.0.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
         </dependency>
 
     </dependencies>
