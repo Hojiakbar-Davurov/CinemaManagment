@@ -20,7 +20,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,9 @@ public class TicketServiceImp implements TicketService {
     @Scheduled(fixedRate = 1000 * 60 * 10)
     public void cancelNotPayment() {
         LocalTime now = LocalTime.now();
+
+        log.debug("Scheduled time is running at: {}", now);
+
         List<Long> notPaymentTicketId = ticketRepository.findNotPaymentByTime(now);
 
         for (Long i : notPaymentTicketId) {
@@ -56,14 +60,17 @@ public class TicketServiceImp implements TicketService {
     @SneakyThrows
     @Override
     public ByteArrayInputStream downloadTicket(Long ticketId) {
+        log.debug("Request to download by ticket id: {}", ticketId);
 
-        String inputFilePath = "src/ticket.pdf"; // Existing file
-        String outputFilePath = "src/ModifiedPdf.pdf"; // New file
+        // find ticket by id
+        TicketDTO ticketDTO = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + "not found by id: " + ticketId)).map2DTO();
 
-        OutputStream fos = new FileOutputStream(new File(outputFilePath));
-
+        String inputFilePath = "src/main/resources/static/ticketDemo.pdf"; // Existing file
         PdfReader pdfReader = new PdfReader(inputFilePath);
-        PdfStamper pdfStamper = new PdfStamper(pdfReader, fos);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfStamper pdfStamper = new PdfStamper(pdfReader, baos);
 
         for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
             PdfContentByte pdfContentByte = pdfStamper.getOverContent(i);
@@ -74,60 +81,41 @@ public class TicketServiceImp implements TicketService {
 
             // set Cinema name
             pdfContentByte.setTextMatrix(61, 773);
-            pdfContentByte.showText("Alisher Navoiy ");
+            pdfContentByte.showText(ticketDTO.getCinema());
 
             // set hall
             pdfContentByte.setTextMatrix(82, 733);
-            pdfContentByte.showText("asosiy zal");
+            pdfContentByte.showText(ticketDTO.getHall());
 
             // set ticket id
             pdfContentByte.setTextMatrix(130, 720);
-            pdfContentByte.showText("4134");
+            pdfContentByte.showText(String.valueOf(ticketDTO.getId()));
 
             // set row
             pdfContentByte.setTextMatrix(89, 682);
-            pdfContentByte.showText("4134");
+            pdfContentByte.showText(ticketDTO.getRow());
 
             // set seat
             pdfContentByte.setTextMatrix(103, 669);
-            pdfContentByte.showText("4134");
+            pdfContentByte.showText(ticketDTO.getSeatName());
 
             // set ticket id
             pdfContentByte.setTextMatrix(315, 771);
-            pdfContentByte.showText("4134");
+            pdfContentByte.showText(String.valueOf(ticketDTO.getId()));
 
             // set film
             pdfContentByte.setTextMatrix(274, 745);
-            pdfContentByte.showText("Titanik");
+            pdfContentByte.showText(ticketDTO.getFilm());
 
             // set session
             pdfContentByte.setTextMatrix(302, 732);
-            pdfContentByte.showText("12:00");
-
-            System.out.println("Text added in " + outputFilePath);
+            pdfContentByte.showText(ticketDTO.getSession());
 
             pdfContentByte.endText();
         }
         pdfStamper.close();
 
-//        File currDir = new File(".");
-//        String path = currDir.getAbsolutePath();
-//        String fileLocation = path.substring(0, path.length() - 1) + "temp.xlsx";
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            workbook.write(outputStream);
-
-            pdfStamper.(outputStream);
-            workbook.close();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        byte[] bytes = outputStream.toByteArray();
-
-        return new ByteArrayInputStream();
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     @Override

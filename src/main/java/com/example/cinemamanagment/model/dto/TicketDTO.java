@@ -38,6 +38,10 @@ public class TicketDTO {
 
     private String orderTypeName;
 
+    private String cinema;
+
+    private String hall;
+
     private String film;
 
     private String session;
