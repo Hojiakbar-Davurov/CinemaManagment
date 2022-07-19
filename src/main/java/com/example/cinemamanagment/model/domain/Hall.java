@@ -4,6 +4,9 @@ import com.example.cinemamanagment.model.dto.HallDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -32,6 +35,12 @@ public class Hall extends AbstractEntity {
     @ManyToOne
     private Cinema cinema;
 
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.REMOVE)
+    Set<Row> rows=new HashSet<>();
+
+    @OneToOne(mappedBy = "hall", cascade = CascadeType.REMOVE)
+    ExecutionFilm executionFilm;
+
     public HallDTO map2DTO() {
         HallDTO hallDTO = new HallDTO();
         hallDTO.setId(this.getId());
@@ -42,5 +51,11 @@ public class Hall extends AbstractEntity {
         hallDTO.setCreatedAt(this.getCreateAt());
         hallDTO.setUpdatedAt(this.getUpdateAt());
         return hallDTO;
+    }
+
+    public Hall(String name, Integer numberOfRows, Cinema cinema) {
+        this.name = name;
+        this.numberOfRows = numberOfRows;
+        this.cinema = cinema;
     }
 }

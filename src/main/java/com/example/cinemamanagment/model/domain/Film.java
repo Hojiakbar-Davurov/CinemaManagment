@@ -1,9 +1,7 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.FilmDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -21,6 +19,9 @@ public class Film extends AbstractEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @OneToOne(mappedBy = "film", cascade = CascadeType.REMOVE)
+    ExecutionFilm executionFilm;
+
     public FilmDTO map2DTO() {
         FilmDTO filmDTO = new FilmDTO();
         filmDTO.setId(this.getId());
@@ -28,5 +29,9 @@ public class Film extends AbstractEntity {
         filmDTO.setCreatedAt(this.getCreateAt());
         filmDTO.setUpdatedAt(this.getUpdateAt());
         return filmDTO;
+    }
+
+    public Film(String name) {
+        this.name = name;
     }
 }
