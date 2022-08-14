@@ -2,38 +2,41 @@ package com.example.cinemamanagment.service.impl;
 
 import com.example.cinemamanagment.exeptions.ResourceAlreadyExistsException;
 import com.example.cinemamanagment.exeptions.ResourceNotFoundException;
+import com.example.cinemamanagment.mapper.CinemaMapper;
 import com.example.cinemamanagment.model.domain.Cinema;
 import com.example.cinemamanagment.model.dto.CinemaDTO;
 import com.example.cinemamanagment.repository.CinemaRepository;
 import com.example.cinemamanagment.service.CinemaService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Log4j2
 @Service
+@RequiredArgsConstructor
 public class CinemaServiceImp implements CinemaService {
-    @Autowired
-    private CinemaRepository cinemaRepository;
+    private final CinemaRepository cinemaRepository;
+    private final CinemaMapper mapper;
 
     @Override
-    public CinemaDTO save(CinemaDTO cinemaDTO) {
-        log.debug("Request come to " + SERVICE_NAME + " service to save, DTO:{}", cinemaDTO);
+    public CinemaDTO save(CinemaDTO dto) {
+        log.debug("Request come to " + SERVICE_NAME + " service to save, DTO:{}", dto);
 
         // check cinema exists by name
-        if (cinemaRepository.existsByName(cinemaDTO.getName())) {
-            throw new ResourceAlreadyExistsException(SERVICE_NAME + " already exists by name: " + cinemaDTO.getName());
+        if (cinemaRepository.existsByName(dto.getName())) {
+            throw new ResourceAlreadyExistsException(SERVICE_NAME + " already exists by name: " + dto.getName());
         }
 
         // save cinema
-        CinemaDTO savedCinemaDTO = cinemaRepository.save(cinemaDTO.map2Entity()).map2DTO();
-        log.debug(SERVICE_NAME + " saved, DTO:{}", savedCinemaDTO);
-
-        return savedCinemaDTO;
+        final var entity = mapper.toEntity(dto);
+        cinemaRepository.save(entity);
+        return mapper.toDto(entity);
     }
 
     @Override
@@ -42,21 +45,19 @@ public class CinemaServiceImp implements CinemaService {
 
         return cinemaRepository.findAll(pageable)
                 .stream()
-                .map(Cinema::map2DTO)
-                .collect(Collectors.toList());
+                .map(mapper::toDto)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
-    public CinemaDTO findById(Long id) {
+    public Optional<CinemaDTO> findById(Long id) {
         log.debug("Request come to " + SERVICE_NAME + " service to find by id:{}", id);
 
         Cinema cinema = cinemaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
 
-        CinemaDTO cinemaDTO = cinema.map2DTO();
-        log.debug(SERVICE_NAME + " found, DTO:{}", cinemaDTO);
-
-        return cinemaDTO;
+        return cinemaRepository.findById(id)
+                .map(mapper::toDto);
     }
 
     @Override
@@ -68,13 +69,12 @@ public class CinemaServiceImp implements CinemaService {
                 .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + " not found by id:" + id));
 
         // update cinema
-        Cinema cinema = cinemaDTO.map2Entity();
+        Cinema cinema = mapper.toEntity(cinemaDTO);
         cinema.setId(optionalCinema.getId());
 
-        CinemaDTO saveCinemaDTO = cinemaRepository.save(cinema).map2DTO();
-        log.debug(SERVICE_NAME + " updated, DTO:{}", saveCinemaDTO);
-
-        return saveCinemaDTO;
+        var entity = mapper.toEntity(cinemaDTO);
+        return mapper.toDto(
+                cinemaRepository.save(entity));
     }
 
     @Override

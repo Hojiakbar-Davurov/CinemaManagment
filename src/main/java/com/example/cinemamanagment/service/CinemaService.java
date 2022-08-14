@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface CinemaService {
@@ -15,7 +16,7 @@ public interface CinemaService {
 
     List<CinemaDTO> findAll(Pageable pageable);
 
-    CinemaDTO findById(Long id);
+    Optional<CinemaDTO> findById(Long id);
 
     CinemaDTO update(Long id, CinemaDTO cinemaDTO);
 

@@ -1,10 +1,10 @@
 package com.example.cinemamanagment.model.domain;
 
-import com.example.cinemamanagment.model.dto.CinemaDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
@@ -12,6 +12,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 @Table(name = "cinema")
 public class Cinema extends AbstractEntity {
 
@@ -20,13 +21,4 @@ public class Cinema extends AbstractEntity {
      */
     @Column(name = "name", unique = true, nullable = false)
     private String name;
-
-    public CinemaDTO map2DTO() {
-        CinemaDTO cinemaDTO = new CinemaDTO();
-        cinemaDTO.setId(this.getId());
-        cinemaDTO.setName(this.name);
-        cinemaDTO.setCreatedAt(this.getCreateAt());
-        cinemaDTO.setUpdatedAt(this.getUpdateAt());
-        return cinemaDTO;
-    }
 }
