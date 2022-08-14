@@ -2,8 +2,10 @@ package com.example.cinemamanagment.controller;
 
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
 import com.example.cinemamanagment.model.dto.CinemaDTO;
+import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import com.example.cinemamanagment.model.dto.SeatDTO;
 import com.example.cinemamanagment.service.SeatService;
+import com.example.cinemamanagment.service.TicketService;
 import io.github.jhipster.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +29,8 @@ public class SeatController {
 
     @Autowired
     private SeatService seatService;
+    @Autowired
+    private TicketService ticketService;
 
     @GetMapping("/seats-in-row/{rowId}")
     public HttpEntity<List<SeatDTO>> findSeatsInRow(@PathVariable Long rowId, Pageable pageable) {
@@ -35,6 +39,16 @@ public class SeatController {
         List<SeatDTO> dtoList = seatService.findAllSeatInRow(rowId, pageable);
         PageImpl<SeatDTO> page = new PageImpl<>(dtoList, pageable, dtoList.size());
 
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(page.getContent());
+    }
+    @GetMapping("/free-seats/{executionFilmId}")
+    public HttpEntity<List<FreeSeatInExecutionFilmDTO>> findFreeSeatByExecutionFilm(@PathVariable Long executionFilmId, Pageable pageable) {
+        log.debug("REST request to get free seat  by execution film id: {}, page: {}", executionFilmId, pageable);
+
+        var page = ticketService.findFreeSeatByExecutionFilm(executionFilmId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok()
                 .headers(headers)

@@ -1,10 +1,11 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.OrderTypeDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -21,6 +22,8 @@ public class OrderType extends AbstractEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "orderType", cascade = CascadeType.REMOVE)
+    Set<Ticket> tickets=new HashSet<>();
     public OrderTypeDTO map2DTO() {
         OrderTypeDTO dto = new OrderTypeDTO();
         dto.setId(this.getId());
@@ -28,5 +31,9 @@ public class OrderType extends AbstractEntity {
         dto.setCreatedAt(this.getCreateAt());
         dto.setUpdatedAt(this.getUpdateAt());
         return dto;
+    }
+
+    public OrderType(String name) {
+        this.name = name;
     }
 }

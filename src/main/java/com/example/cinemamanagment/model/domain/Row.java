@@ -5,6 +5,9 @@ import com.example.cinemamanagment.model.dto.RowDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -33,6 +36,9 @@ public class Row extends AbstractEntity {
     @ManyToOne
     private Hall hall;
 
+    @OneToMany(mappedBy = "row", cascade = CascadeType.REMOVE)
+    Set<Seat> seats=new HashSet<>();
+
     public RowDTO map2DTO() {
         RowDTO rowDTO = new RowDTO();
         rowDTO.setId(this.getId());
@@ -43,5 +49,11 @@ public class Row extends AbstractEntity {
         rowDTO.setCreatedAt(this.getCreateAt());
         rowDTO.setUpdatedAt(this.getUpdateAt());
         return rowDTO;
+    }
+
+    public Row(String name, Integer numberOfSeats, Hall hall) {
+        this.name = name;
+        this.numberOfSeats = numberOfSeats;
+        this.hall = hall;
     }
 }

@@ -4,6 +4,9 @@ import com.example.cinemamanagment.model.dto.SeatDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -26,6 +29,9 @@ public class Seat extends AbstractEntity {
     @ManyToOne
     private Row row;
 
+    @OneToMany(mappedBy = "seat", cascade = CascadeType.REMOVE)
+    Set<Ticket> tickets=new HashSet<>();
+
     public SeatDTO map2DTO() {
         SeatDTO seatDTO = new SeatDTO();
         seatDTO.setId(this.getId());
@@ -35,5 +41,10 @@ public class Seat extends AbstractEntity {
         seatDTO.setCreatedAt(this.getCreateAt());
         seatDTO.setUpdatedAt(this.getUpdateAt());
         return seatDTO;
+    }
+
+    public Seat(String name, Row row) {
+        this.name = name;
+        this.row = row;
     }
 }

@@ -1,9 +1,7 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.SessionDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -23,6 +21,8 @@ public class Session extends AbstractEntity {
     @Column(name = "time", unique = true, nullable = false)
     private LocalTime time;
 
+    @OneToOne(mappedBy = "session", cascade = CascadeType.REMOVE)
+    ExecutionFilm executionFilm;
     public SessionDTO map2DTO() {
         SessionDTO sessionDTO = new SessionDTO();
         sessionDTO.setId(this.getId());
@@ -30,5 +30,9 @@ public class Session extends AbstractEntity {
         sessionDTO.setCreatedAt(this.getCreateAt());
         sessionDTO.setUpdatedAt(this.getUpdateAt());
         return sessionDTO;
+    }
+
+    public Session(LocalTime time) {
+        this.time = time;
     }
 }

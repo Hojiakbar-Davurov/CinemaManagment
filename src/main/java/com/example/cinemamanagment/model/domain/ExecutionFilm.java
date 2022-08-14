@@ -1,11 +1,11 @@
 package com.example.cinemamanagment.model.domain;
 
 import com.example.cinemamanagment.model.dto.ExecutionFilmDTO;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -37,6 +37,9 @@ public class ExecutionFilm extends AbstractEntity {
     @OneToOne
     private Session session;
 
+    @OneToMany(mappedBy = "executionFilm", cascade = CascadeType.REMOVE)
+    Set<Ticket> tickets=new HashSet<>();
+
     public ExecutionFilmDTO map2DTO() {
         ExecutionFilmDTO executionFilmDTO = new ExecutionFilmDTO();
         executionFilmDTO.setId(this.getId());
@@ -48,5 +51,11 @@ public class ExecutionFilm extends AbstractEntity {
         executionFilmDTO.setSession(this.session.getTime().toString());
 
         return executionFilmDTO;
+    }
+
+    public ExecutionFilm(Hall hall, Film film, Session session) {
+        this.hall = hall;
+        this.film = film;
+        this.session = session;
     }
 }

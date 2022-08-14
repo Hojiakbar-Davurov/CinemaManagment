@@ -1,7 +1,6 @@
 package com.example.cinemamanagment.controller;
 
 import com.example.cinemamanagment.model.dto.ApiResponseWrapperDTO;
-import com.example.cinemamanagment.model.dto.FreeSeatInExecutionFilmDTO;
 import com.example.cinemamanagment.model.dto.TicketDTO;
 import com.example.cinemamanagment.service.TicketService;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -28,23 +27,14 @@ public class TicketController {
     private TicketService ticketService;
 
     @GetMapping("/download-ticket/{ticketId}")
-    public HttpEntity<Resource> downloadTicketById(@PathVariable Long ticketId){
-        ByteArrayInputStream stream=ticketService.downloadTicket(ticketId);
-        InputStreamResource file=new InputStreamResource(stream);
+    public HttpEntity<Resource> downloadTicketById(@PathVariable Long ticketId) {
+        log.debug("REST request to download by ticket id: {}", ticketId);
+
+        ByteArrayInputStream stream = ticketService.downloadTicket(ticketId);
+        InputStreamResource file = new InputStreamResource(stream);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket.pdf")
                 .contentType(MediaType.parseMediaType("application/vnd.ms-excel")).body(file);
-    }
-
-    @GetMapping("/free-seats/{executionFilmId}")
-    public HttpEntity<List<FreeSeatInExecutionFilmDTO>> findFreeSeatByExecutionFilm(@PathVariable Long executionFilmId, Pageable pageable) {
-        log.debug("REST request to get free seat  by execution film id: {}, page: {}", executionFilmId, pageable);
-
-        var page = ticketService.findFreeSeatByExecutionFilm(executionFilmId, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(page.getContent());
     }
 
     @PostMapping

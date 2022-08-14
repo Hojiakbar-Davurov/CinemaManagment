@@ -89,6 +89,8 @@ public class Ticket extends AbstractEntity {
                 this.seatStatus.getName(),
                 this.orderType.getId(),
                 this.orderType.getName(),
+                this.executionFilm.getHall().getCinema().getName(),
+                this.executionFilm.getHall().getName(),
                 this.executionFilm.getFilm().getName(),
                 this.executionFilm.getSession().getTime().toString(),
                 this.seat.getRow().getName(),

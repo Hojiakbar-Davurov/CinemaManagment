@@ -14,13 +14,15 @@ import com.itextpdf.text.pdf.PdfStamper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +43,9 @@ public class TicketServiceImp implements TicketService {
     @Scheduled(fixedRate = 1000 * 60 * 10)
     public void cancelNotPayment() {
         LocalTime now = LocalTime.now();
+
+        log.debug("Scheduled time is running at: {}", now);
+
         List<Long> notPaymentTicketId = ticketRepository.findNotPaymentByTime(now);
 
         for (Long i : notPaymentTicketId) {
@@ -52,79 +57,62 @@ public class TicketServiceImp implements TicketService {
     @SneakyThrows
     @Override
     public ByteArrayInputStream downloadTicket(Long ticketId) {
-//
-//        String inputFilePath = "src/ticket.pdf"; // Existing file
-//        String outputFilePath = "src/ModifiedPdf.pdf"; // New file
-//
-//        OutputStream fos = new FileOutputStream(new File(outputFilePath));
-//
-//        PdfReader pdfReader = new PdfReader(inputFilePath);
-//        PdfStamper pdfStamper = new PdfStamper(pdfReader, fos);
-//
-//        for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
-//            PdfContentByte pdfContentByte = pdfStamper.getOverContent(i);
-//
-//            // Add text in existing PDF
-//            pdfContentByte.beginText();
-//            pdfContentByte.setFontAndSize(BaseFont.createFont(BaseFont.TIMES_BOLD, BaseFont.CP1257, BaseFont.EMBEDDED), 12);
-//
-//            // set Cinema name
-//            pdfContentByte.setTextMatrix(61, 773);
-//            pdfContentByte.showText("Alisher Navoiy ");
-//
-//            // set hall
-//            pdfContentByte.setTextMatrix(82, 733);
-//            pdfContentByte.showText("asosiy zal");
-//
-//            // set ticket id
-//            pdfContentByte.setTextMatrix(130, 720);
-//            pdfContentByte.showText("4134");
-//
-//            // set row
-//            pdfContentByte.setTextMatrix(89, 682);
-//            pdfContentByte.showText("4134");
-//
-//            // set seat
-//            pdfContentByte.setTextMatrix(103, 669);
-//            pdfContentByte.showText("4134");
-//
-//            // set ticket id
-//            pdfContentByte.setTextMatrix(315, 771);
-//            pdfContentByte.showText("4134");
-//
-//            // set film
-//            pdfContentByte.setTextMatrix(274, 745);
-//            pdfContentByte.showText("Titanik");
-//
-//            // set session
-//            pdfContentByte.setTextMatrix(302, 732);
-//            pdfContentByte.showText("12:00");
-//
-//            System.out.println("Text added in " + outputFilePath);
-//
-//            pdfContentByte.endText();
-//        }
-//        pdfStamper.close();
-//
-////        File currDir = new File(".");
-////        String path = currDir.getAbsolutePath();
-////        String fileLocation = path.substring(0, path.length() - 1) + "temp.xlsx";
-//
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        try {
-//            workbook.write(outputStream);
-//
-//            pdfStamper.(outputStream);
-//            workbook.close();
-//            outputStream.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        byte[] bytes = outputStream.toByteArray();
-//
-//        return new ByteArrayInputStream();
-        return  null;
+        log.debug("Request to download by ticket id: {}", ticketId);
+
+        // find ticket by id
+        TicketDTO ticketDTO = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException(SERVICE_NAME + "not found by id: " + ticketId)).map2DTO();
+
+        String inputFilePath = "src/main/resources/static/ticketDemo.pdf"; // Existing file
+        PdfReader pdfReader = new PdfReader(inputFilePath);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfStamper pdfStamper = new PdfStamper(pdfReader, baos);
+
+        for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+            PdfContentByte pdfContentByte = pdfStamper.getOverContent(i);
+
+            // Add text in existing PDF
+            pdfContentByte.beginText();
+            pdfContentByte.setFontAndSize(BaseFont.createFont(BaseFont.TIMES_BOLD, BaseFont.CP1257, BaseFont.EMBEDDED), 12);
+
+            // set Cinema name
+            pdfContentByte.setTextMatrix(61, 773);
+            pdfContentByte.showText(ticketDTO.getCinema());
+
+            // set hall
+            pdfContentByte.setTextMatrix(82, 733);
+            pdfContentByte.showText(ticketDTO.getHall());
+
+            // set ticket id
+            pdfContentByte.setTextMatrix(130, 720);
+            pdfContentByte.showText(String.valueOf(ticketDTO.getId()));
+
+            // set row
+            pdfContentByte.setTextMatrix(89, 682);
+            pdfContentByte.showText(ticketDTO.getRow());
+
+            // set seat
+            pdfContentByte.setTextMatrix(103, 669);
+            pdfContentByte.showText(ticketDTO.getSeatName());
+
+            // set ticket id
+            pdfContentByte.setTextMatrix(315, 771);
+            pdfContentByte.showText(String.valueOf(ticketDTO.getId()));
+
+            // set film
+            pdfContentByte.setTextMatrix(274, 745);
+            pdfContentByte.showText(ticketDTO.getFilm());
+
+            // set session
+            pdfContentByte.setTextMatrix(302, 732);
+            pdfContentByte.showText(ticketDTO.getSession());
+
+            pdfContentByte.endText();
+        }
+        pdfStamper.close();
+
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
     @Override
